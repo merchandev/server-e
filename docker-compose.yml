@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+
+  # ----------------------------------------------------------
+  # Icecast — Servidor de audio Streaming Radio E-Server
+  # Puerto 8100 para no conflictar con radio Sonora (8000)
+  # ni con TV Monagas (1935)
+  # Licencia vence: 2027-05-28 23:59
+  # LÍMITE: 1000 usuarios simultáneos
+  # ----------------------------------------------------------
+  icecast:
+    build:
+      context: .
+      dockerfile: Dockerfile.icecast
+    container_name: eserver-icecast
+    restart: always
+    ports:
+      - "8100:8100"   # Puerto único para E-Server (Sonora usa 8000)
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8100/status.xsl"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - internal-oriental
+
+  # ----------------------------------------------------------
+  # Nginx — Proxy interno hacia Icecast + player web
+  # Traefik enruta el tráfico de radio.diarioeloriental.com aquí
+  # Entrypoint verifica expiración de licencia (2027-05-28)
+  # ----------------------------------------------------------
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: eserver-nginx
+    restart: always
+    depends_on:
+      - icecast
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      # --- Habilitar Traefik ---
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
+
+      # --- Router HTTPS ---
+      - "traefik.http.routers.eserver.rule=Host(`radio.diarioeloriental.com`)"
+      - "traefik.http.routers.eserver.entrypoints=websecure"
+      - "traefik.http.routers.eserver.tls=true"
+      - "traefik.http.routers.eserver.tls.certresolver=letsencrypt"
+
+      # --- Puerto interno de nginx ---
+      - "traefik.http.services.eserver.loadbalancer.server.port=80"
+
+      # --- Router HTTP → redirige a HTTPS ---
+      - "traefik.http.routers.eserver-http.rule=Host(`radio.diarioeloriental.com`)"
+      - "traefik.http.routers.eserver-http.entrypoints=web"
+      - "traefik.http.routers.eserver-http.middlewares=redirect-to-https@docker"
+    networks:
+      - internal-oriental
+      - traefik-net
+
+networks:
+  internal-oriental:
+    # Red interna: solo Icecast y Nginx se ven entre sí
+    name: eserver-internal
+  traefik-net:
+    external: true

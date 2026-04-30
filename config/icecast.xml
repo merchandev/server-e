@@ -1,0 +1,59 @@
+<icecast>
+    <location>Internet</location>
+    <admin>admin@diarioeloriental.com</admin>
+    <!-- E-Server Streaming Radio — Expira: 2027-05-28 23:59 -->
+
+    <limits>
+        <clients>1000</clients>   <!-- LÍMITE: 1000 usuarios simultáneos -->
+        <sources>10</sources>
+        <threadpool>5</threadpool>
+        <queue-size>524288</queue-size>
+        <client-timeout>30</client-timeout>
+        <header-timeout>15</header-timeout>
+        <source-timeout>10</source-timeout>
+        <burst-on-connect>1</burst-on-connect>
+        <burst-size>131072</burst-size>
+    </limits>
+
+    <authentication>
+        <source-password>diario2024stream</source-password>
+        <relay-password>diariorelay2024</relay-password>
+        <admin-user>admin</admin-user>
+        <admin-password>diario2024admin</admin-password>
+    </authentication>
+
+    <hostname>e-server-streaming-radio</hostname>
+
+    <!-- Puerto 8100 - único para E-Server, no conflicta con Sonora (8000) ni TV (1935) -->
+    <listen-socket>
+        <port>8100</port>
+    </listen-socket>
+
+    <fileserve>1</fileserve>
+
+    <paths>
+        <basedir>/usr/share/icecast</basedir>
+        <logdir>/var/log/icecast</logdir>
+        <webroot>/usr/share/icecast/web</webroot>
+        <adminroot>/usr/share/icecast/admin</adminroot>
+        <alias source="/" destination="/status.xsl"/>
+    </paths>
+
+    <logging>
+        <accesslog>access.log</accesslog>
+        <errorlog>error.log</errorlog>
+        <loglevel>3</loglevel> <!-- 4 Debug, 3 Info, 2 Warn, 1 Error -->
+        <logsize>10000</logsize>
+    </logging>
+
+    <security>
+        <chroot>0</chroot>
+    </security>
+
+    <!-- Performance tuning + CORS -->
+    <http-headers>
+        <header name="Access-Control-Allow-Origin" value="*" />
+        <header name="Access-Control-Allow-Methods" value="GET, POST, OPTIONS" />
+        <header name="Access-Control-Allow-Headers" value="Origin, Accept, Content-Type, X-Requested-With" />
+    </http-headers>
+</icecast>

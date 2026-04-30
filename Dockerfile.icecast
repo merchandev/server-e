@@ -1,0 +1,19 @@
+FROM alpine:3.18
+
+# Install icecast and mailcap
+RUN apk add --no-cache icecast mailcap
+
+# Create dirs
+RUN mkdir -p /var/log/icecast && \
+    chown -R icecast:icecast /var/log/icecast && \
+    mkdir -p /usr/share/icecast/web && \
+    mkdir -p /usr/share/icecast/admin
+
+# Copy config
+COPY config/icecast.xml /etc/icecast.xml
+RUN chown icecast:icecast /etc/icecast.xml
+
+USER icecast
+EXPOSE 8100
+
+CMD ["icecast", "-c", "/etc/icecast.xml"]
