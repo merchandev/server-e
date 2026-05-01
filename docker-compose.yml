@@ -71,12 +71,12 @@ services:
       # --- Router HTTP → redirect a HTTPS ---
       - "traefik.http.routers.eserver-http.rule=Host(`radio.diarioeloriental.com`)"
       - "traefik.http.routers.eserver-http.entrypoints=web"
-      - "traefik.http.routers.eserver-http.middlewares=redirect-to-https"
+      - "traefik.http.routers.eserver-http.middlewares=eserver-redirect"
       - "traefik.http.routers.eserver-http.service=eserver"
 
-      # --- Middleware redirect ---
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+      # --- Middleware redirect (nombre único para evitar conflictos) ---
+      - "traefik.http.middlewares.eserver-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.eserver-redirect.redirectscheme.permanent=true"
     networks:
       - internal-oriental
       - traefik-net
