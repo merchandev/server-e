@@ -27,6 +27,7 @@
     <!-- Puerto 8100 - único para E-Server, no conflicta con Sonora (8000) ni TV (1935) -->
     <listen-socket>
         <port>8100</port>
+        <bind-address>0.0.0.0</bind-address>
     </listen-socket>
 
     <fileserve>1</fileserve>
