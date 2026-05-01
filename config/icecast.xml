@@ -46,6 +46,20 @@
         <logsize>10000</logsize>
     </logging>
 
+    <!-- Mountpoint explícito para el stream AAC del encoder Opticodec -->
+    <mount type="normal">
+        <mount-name>/radio.aac</mount-name>
+        <stream-name>Diario El Oriental - E-Server Radio</stream-name>
+        <stream-description>Transmisión 24/7 de Diario El Oriental, Maturín, Venezuela</stream-description>
+        <stream-url>https://radio.diarioeloriental.com</stream-url>
+        <genre>News / Talk</genre>
+        <bitrate>32</bitrate>
+        <type>audio/aac</type>
+        <public>0</public>
+        <!-- Si el encoder se desconecta, Icecast devuelve 200 vacío en vez de 404 -->
+        <on-disconnect>/bin/true</on-disconnect>
+    </mount>
+
     <security>
         <chroot>0</chroot>
     </security>
