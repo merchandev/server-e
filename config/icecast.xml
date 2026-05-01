@@ -1,6 +1,6 @@
 <icecast>
     <location>Internet</location>
-    <admin>admin@diarioeloriental.com</admin>
+    <admin>admin@merchan.dev</admin>
     <!-- E-Server Streaming Radio — Expira: 2027-05-28 23:59 -->
 
     <limits>
@@ -49,8 +49,8 @@
     <!-- Mountpoint explícito para el stream AAC del encoder Opticodec -->
     <mount type="normal">
         <mount-name>/radio.aac</mount-name>
-        <stream-name>Diario El Oriental - E-Server Radio</stream-name>
-        <stream-description>Transmisión 24/7 de Diario El Oriental, Maturín, Venezuela</stream-description>
+        <stream-name>Merchan.Dev - E-Server Radio</stream-name>
+        <stream-description>E-Server Radio 24/7 - Powered by Merchan.Dev</stream-description>
         <stream-url>https://radio.diarioeloriental.com</stream-url>
         <genre>News / Talk</genre>
         <bitrate>32</bitrate>
