@@ -18,7 +18,7 @@ services:
     ports:
       - "8100:8100"   # Puerto único para E-Server (Sonora usa 8000)
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8100/status.xsl"]
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8100/status.xsl"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -44,7 +44,7 @@ services:
     depends_on:
       - icecast
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost/"]
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -67,10 +67,9 @@ services:
       # --- Puerto interno de nginx ---
       - "traefik.http.services.eserver.loadbalancer.server.port=80"
 
-      # --- Router HTTP → redirige a HTTPS ---
+      # --- Router HTTP → redirige a HTTPS (la redirección la hace Traefik globalmente) ---
       - "traefik.http.routers.eserver-http.rule=Host(`radio.diarioeloriental.com`)"
       - "traefik.http.routers.eserver-http.entrypoints=web"
-      - "traefik.http.routers.eserver-http.middlewares=redirect-to-https@docker"
     networks:
       - internal-oriental
       - traefik-net

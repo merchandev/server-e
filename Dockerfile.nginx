@@ -1,8 +1,8 @@
 FROM nginx:alpine
 
-# Copiar configuraciones
-COPY config/nginx.conf /etc/nginx/conf.d/nginx.conf
-COPY config/nginx_expired.conf /etc/nginx/conf.d/nginx_expired.conf
+# Copiar configuraciones como "plantillas" (el entrypoint activa la correcta)
+COPY config/nginx.conf /etc/nginx/conf.d/nginx_site.conf
+COPY config/nginx_expired.conf /etc/nginx/conf.d/nginx_expired_site.conf
 
 # Copiar páginas web
 COPY index.html /usr/share/nginx/html/index.html
