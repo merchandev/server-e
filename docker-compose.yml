@@ -16,7 +16,7 @@ services:
     container_name: eserver-icecast
     restart: always
     ports:
-      - "8100:8100"   # Puerto único para E-Server (Sonora usa 8000)
+      - "8081:8100"   # Puerto expuesto cambiado a 8081 para evadir bloqueo de red
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8100/status.xsl"]
       interval: 30s
