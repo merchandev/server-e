@@ -63,13 +63,20 @@ services:
       - "traefik.http.routers.eserver.entrypoints=websecure"
       - "traefik.http.routers.eserver.tls=true"
       - "traefik.http.routers.eserver.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.eserver.service=eserver"
 
-      # --- Puerto interno de nginx ---
+      # --- Servicio interno (puerto nginx) ---
       - "traefik.http.services.eserver.loadbalancer.server.port=80"
 
-      # --- Router HTTP → redirige a HTTPS (la redirección la hace Traefik globalmente) ---
+      # --- Router HTTP → redirect a HTTPS ---
       - "traefik.http.routers.eserver-http.rule=Host(`radio.diarioeloriental.com`)"
       - "traefik.http.routers.eserver-http.entrypoints=web"
+      - "traefik.http.routers.eserver-http.middlewares=redirect-to-https"
+      - "traefik.http.routers.eserver-http.service=eserver"
+
+      # --- Middleware redirect ---
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
     networks:
       - internal-oriental
       - traefik-net
