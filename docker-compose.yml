@@ -54,29 +54,13 @@ services:
         max-size: "10m"
         max-file: "3"
     labels:
-      # --- Habilitar Traefik ---
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-net"
-
-      # --- Router HTTPS ---
       - "traefik.http.routers.eserver.rule=Host(`radio.diarioeloriental.com`)"
       - "traefik.http.routers.eserver.entrypoints=websecure"
       - "traefik.http.routers.eserver.tls=true"
       - "traefik.http.routers.eserver.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.eserver.service=eserver"
-
-      # --- Servicio interno (puerto nginx) ---
       - "traefik.http.services.eserver.loadbalancer.server.port=80"
-
-      # --- Router HTTP → redirect a HTTPS ---
-      - "traefik.http.routers.eserver-http.rule=Host(`radio.diarioeloriental.com`)"
-      - "traefik.http.routers.eserver-http.entrypoints=web"
-      - "traefik.http.routers.eserver-http.middlewares=eserver-redirect"
-      - "traefik.http.routers.eserver-http.service=eserver"
-
-      # --- Middleware redirect (nombre único para evitar conflictos) ---
-      - "traefik.http.middlewares.eserver-redirect.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.eserver-redirect.redirectscheme.permanent=true"
     networks:
       - internal-oriental
       - traefik-net
