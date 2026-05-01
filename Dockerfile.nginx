@@ -1,12 +1,17 @@
 FROM nginx:alpine
 
-# Copiar configuraciones como "plantillas" (el entrypoint activa la correcta)
-COPY config/nginx.conf /etc/nginx/conf.d/nginx_site.conf
+# Reemplazar el nginx.conf raíz con nuestro config completo
+# (tiene user, worker_processes, events{}, http{} con include conf.d/*.conf)
+COPY config/nginx.conf /etc/nginx/nginx.conf
+
+# Copiar las plantillas de server blocks (solo server{}, sin user/events/http)
+# El entrypoint activará la correcta copiándola a conf.d/active.conf
+COPY config/nginx_site.conf    /etc/nginx/conf.d/nginx_site.conf
 COPY config/nginx_expired.conf /etc/nginx/conf.d/nginx_expired_site.conf
 
 # Copiar páginas web
-COPY index.html /usr/share/nginx/html/index.html
-COPY embed.html /usr/share/nginx/html/embed.html
+COPY index.html  /usr/share/nginx/html/index.html
+COPY embed.html  /usr/share/nginx/html/embed.html
 
 # Entrypoint con control de expiración de licencia (2027-05-28 23:59)
 COPY config/entrypoint.sh /entrypoint.sh
