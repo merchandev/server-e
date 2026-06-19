@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+
+  # ----------------------------------------------------------
+  # Icecast — Servidor de audio Streaming Radio E-Server
+  # Puerto 8100 para no conflictar con radio Sonora (8000)
+  # ni con TV Monagas (1935)
+  # Licencia vence: 2027-05-28 23:59
+  # LÍMITE: 1000 usuarios simultáneos
+  # ----------------------------------------------------------
+  icecast:
+    build:
+      context: .
+      dockerfile: Dockerfile.icecast
+    container_name: eserver-icecast
+    restart: always
+    ports:
+      - "8081:8100"   # Puerto expuesto cambiado a 8081 para evadir bloqueo de red
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8100/status.xsl"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - internal-oriental
+
+  # ----------------------------------------------------------
+  # Nginx — Proxy interno hacia Icecast + player web
+  # Traefik enruta el tráfico de radio.diarioeloriental.com aquí
+  # Entrypoint verifica expiración de licencia (2027-05-28)
+  # ----------------------------------------------------------
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: eserver-nginx
+    restart: always
+    depends_on:
+      - icecast
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
+      - "traefik.http.routers.eserver.rule=Host(`radio.diarioeloriental.com`)"
+      - "traefik.http.routers.eserver.entrypoints=websecure"
+      - "traefik.http.routers.eserver.tls=true"
+      - "traefik.http.routers.eserver.tls.certresolver=letsencrypt"
+      - "traefik.http.services.eserver.loadbalancer.server.port=80"
+    networks:
+      - internal-oriental
+      - traefik-net
+
+networks:
+  internal-oriental:
+    # Red interna: solo Icecast y Nginx se ven entre sí
+    name: eserver-internal
+  traefik-net:
+    external: true
