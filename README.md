@@ -1,8 +1,7 @@
 # Streaming Radio E-Server
 
-Servidor Docker de streaming de radio para el dominio `diarioeloriental.com`.
+Servidor Docker de streaming de radio.
 
-> **⚠️ Licencia vence: 2027-05-28 23:59** — Después de esa fecha el servidor se bloquea automáticamente.
 > **👥 Límite:** 1000 usuarios simultáneos.
 
 ## Arquitectura
@@ -16,35 +15,23 @@ Servidor Docker de streaming de radio para el dominio `diarioeloriental.com`.
   └──────┬──────────────┘
          │ (red interna Docker: eserver-internal)
   ┌──────▼──────────────┐
-  │   Nginx (80)        │  ← verifica expiración en arranque
+  │   Nginx (80)        │
   └──────┬──────────────┘
          │ (red externa Docker: traefik-net)
   ┌──────▼──────┐
   │   Traefik   │  ← SSL automático Let's Encrypt
   └──────┬──────┘
          │
-  radio.diarioeloriental.com (HTTPS)
+  radio.tudominio.com (HTTPS)
 ```
 
 ## Mapa de puertos del VPS (sin conflictos)
 
 | Servicio                    | Puerto host | Notas                               |
 |-----------------------------|-------------|-------------------------------------|
-| radio-streaming-server      | 8000        | Icecast – Sonora/Radio Monagas      |
-| mv-streaming (TV)           | 1935        | RTMP – Monagas Visión TV            |
+| radio-streaming-server      | 8000        | Icecast                             |
+| mv-streaming (TV)           | 1935        | RTMP                                |
 | **eserver-icecast** ✅ NUEVO | **8100**    | **Streaming Radio E-Server**        |
-
-## Sistema de expiración (doble capa)
-
-### 1. Capa servidor (Nginx entrypoint)
-Al arrancar el contenedor `eserver-nginx`, el script `entrypoint.sh` verifica la fecha.
-Si la fecha actual ≥ **2027-05-28 23:59:59 UTC**, activa `nginx_expired.conf` que devuelve **403** a todas las peticiones.
-
-### 2. Capa cliente (JavaScript)
-En `index.html` y `embed.html`, el JS verifica `new Date() >= new Date('2027-05-28T23:59:59')`:
-- El botón de play queda **deshabilitado**
-- Aparece un **banner de licencia vencida**
-- Si hay audio reproduciéndose, se **corta inmediatamente**
 
 ## Deploy en el VPS (Hostinger)
 
@@ -52,7 +39,7 @@ En `index.html` y `embed.html`, el JS verifica `new Date() >= new Date('2027-05-
 
 ```bash
 # Desde tu PC (PowerShell/CMD)
-scp -r "C:\Users\merch\OneDrive\Escritorio\e" usuario@srv1212736.hstgr.cloud:/home/usuario/eserver-radio
+scp -r "C:\ruta\a\tu\carpeta\eserver-radio" usuario@IP_DEL_VPS:/home/usuario/eserver-radio
 ```
 
 ### 2. En el VPS: construir y levantar
@@ -91,7 +78,7 @@ curl http://localhost:8100/status.xsl
 
 | Campo        | Valor                              |
 |--------------|------------------------------------|
-| Host         | IP del VPS (srv1212736.hstgr.cloud)|
+| Host         | IP del VPS                         |
 | Puerto       | `8100`                             |
 | Password     | `oriental2024stream`               |
 | Mountpoint   | `/radio.aac`                       |
@@ -99,17 +86,17 @@ curl http://localhost:8100/status.xsl
 
 ## URLs finales
 
-- Player principal: `https://radio.diarioeloriental.com`
-- Widget embebible: `https://radio.diarioeloriental.com/embed.html`
-- Stream directo:   `https://radio.diarioeloriental.com/radio.aac`
+- Player principal: `https://radio.tudominio.com`
+- Widget embebible: `https://radio.tudominio.com/embed.html`
+- Stream directo:   `https://radio.tudominio.com/radio.aac`
 - Admin Icecast:    `http://IP_VPS:8100/admin` (solo interno)
 
 ## DNS requerido
 
-Añadir en el panel DNS de `diarioeloriental.com`:
+Añadir en el panel DNS de tu dominio:
 
 ```
-radio    A    [IP_DEL_VPS]    (mismo IP que monagasvision.com)
+radio    A    [IP_DEL_VPS]
 ```
 
 ## Requisito previo: Red traefik-net
